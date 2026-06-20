@@ -1,0 +1,76 @@
+@startuml
+skinparam classAttributeIconSize 0
+title Calendário de Eventos SCC0504 - Diagrama de Classes
+
+class App {
+  +main(args: String[]): void
+}
+
+class CalendarFrame {
+  -manager: EventManager
+  -storage: EventStorage
+  -currentMonth: YearMonth
+  -selectedDate: LocalDate
+  -refreshCalendar(): void
+  -refreshDayList(): void
+  -addEvent(): void
+  -editEvent(): void
+  -deleteEvent(): void
+  -searchEvents(): void
+  -showStartupReminders(): void
+}
+
+class EventDialog {
+  -titleField: JTextField
+  -dateField: JTextField
+  -timeField: JTextField
+  -result: CalendarEvent
+  -saveEvent(): void
+  +getResult(): CalendarEvent
+}
+
+class EventManager {
+  -events: List<CalendarEvent>
+  +add(event: CalendarEvent): void
+  +remove(event: CalendarEvent): void
+  +byDate(date: LocalDate): List<CalendarEvent>
+  +search(keyword: String): List<CalendarEvent>
+  +remindersForNext24Hours(now: LocalDateTime): List<CalendarEvent>
+}
+
+class CalendarEvent {
+  -id: String
+  -title: String
+  -date: LocalDate
+  -time: LocalTime
+  -location: String
+  -description: String
+  -category: EventCategory
+  -reminderLeadHours: int
+  +getDateTime(): LocalDateTime
+  +getReminderDateTime(): LocalDateTime
+  +containsKeyword(keyword: String): boolean
+}
+
+enum EventCategory {
+  MEETING
+  BIRTHDAY
+  APPOINTMENT
+  +getLabel(): String
+  +getColor(): Color
+}
+
+class EventStorage {
+  -file: Path
+  +load(): List<CalendarEvent>
+  +save(events: List<CalendarEvent>): void
+}
+
+App ..> CalendarFrame : inicia
+CalendarFrame *-- EventManager : composição
+CalendarFrame *-- EventStorage : composição
+CalendarFrame ..> EventDialog : abre
+EventManager o-- CalendarEvent : gerencia
+CalendarEvent --> EventCategory : classifica
+EventStorage ..> CalendarEvent : serializa
+@enduml
